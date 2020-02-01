@@ -1,5 +1,14 @@
-; Removes all content from the screen and sets
-; a black background color with light grey text.
+; Stores the colors to be used when clearing the screen.
+SCREEN_COLOR: db 0x07
+
+; Sets the color to be used for any following clear
+; operations. New color is to be given via BL.
+set_color:
+  mov byte [SCREEN_COLOR], bl
+  ret
+
+; Removes all content from the screen and sets every cells color to
+; the color set through `set_color` (or light grey on black by default).
 ; Also moves the cursor to the top-left cell.
 clear_screen:
   ; 0x06 is the scroll function (current screen gets scrolled out of view)
@@ -7,7 +16,7 @@ clear_screen:
   ; 0x00 tells it to completely scroll everything out of view
   mov al, 0x00
   ; Set background color to black and text color to light grey
-  mov bh, 0x07
+  mov bh, [SCREEN_COLOR]
   ; Store the coordinates of the top-left cell and the bottom-right
   ; cells in CX and DX respectively.
   mov cx, 0x0000
@@ -38,8 +47,6 @@ printc:
   mov ah, 0x0E
   ; Page 0
   mov bh, 0x00
-  ; Black background, light grey text
-  mov bl, 0x07
   int 0x10
   ret
 
