@@ -10,6 +10,25 @@
 
 %define INPUT_BUFFER_LEN 128
 
+start:
+  ; Make sure SI and DI are incremented by STOSB and LODSB
+  cld
+
+  ; Set DS and ES to 0
+  xor ax, ax
+  mov ds, ax
+  mov es, ax
+
+  ; Initialize stack to grow from 0x8FFFF to 0x8000
+  mov bx, 0x8000
+  cli
+  mov ss, bx
+  mov sp, ax
+  sti
+
+  ; For more information about the above code see
+  ; https://stackoverflow.com/questions/32701854/boot-loader-doesnt-jump-to-kernel-code/32705076#32705076
+
 reset_floppy:
   ; Reset the floppy drive (0x00)...
   mov dl, 0x00
@@ -58,8 +77,6 @@ READ_SND_STAGE_ERROR: db "Failed to read the second stage from the floppy drive.
 ; with 0s.
 times 510-($-$$) db 0x00
 dw 0xAA55
-
-[org 0x]
 
 %include "io.asm"
 
