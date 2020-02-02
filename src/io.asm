@@ -1,3 +1,13 @@
+; ---
+;
+; This file contains various subroutines for interacting with the screen
+; as well as reading input from it.
+;
+; The print subroutines are in a separate file (print.asm) so they can be loaded
+; by the first stage of the bootloader without having to load everything else with it.
+;
+; ---
+
 %define KEY_BACKSPACE 0x0E
 %define KEY_ENTER 0x1C
 
@@ -40,46 +50,6 @@ move_cursor:
   ; Page 0
   mov bh, 0x00
   int 0x10
-  ret
-
-; Print a single character given by AL
-; at the current position of the cursor
-printc:
-  ; 0x0E is the function to print a character
-  ; from AL
-  mov ah, 0x0E
-  ; Page 0
-  mov bh, 0x00
-  int 0x10
-  ret
-
-; Prints a NUL-terminated string given by the
-; SI register to the screen.
-print:
-  lodsb
-  ; Check if given byte is the terminating
-  ; NUL character
-  cmp al, 0x00
-  jz .end
-  call printc
-  jmp print
-
-.end:
-  ret
-
-; Like print but will add a linebreak after
-; the given string.
-println:
-  call print
-
-  ; Move to the next line
-  mov al, `\n`
-  call printc
-
-  ; Move the cursor to the start of the line
-  mov al, `\r`
-  call printc
-
   ret
 
 ; Reads an entire line (terminated by the ENTER key) of input
