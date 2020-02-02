@@ -1,3 +1,6 @@
+%define KEY_BACKSPACE 0x0E
+%define KEY_ENTER 0x1C
+
 ; Stores the colors to be used when clearing the screen.
 SCREEN_COLOR: db 0x07
 
@@ -77,4 +80,63 @@ println:
   mov al, `\r`
   call printc
 
+  ret
+
+; Reads an entire line (terminated by the ENTER key) of input
+; into the memory pointed to by DI. Does not attempt to read more
+; than one byte less as specified by DL to terminate the input string
+; with a NUL character.
+readln:
+  ; When pressing backspace you should not be able to
+  ; delete infinite amounts of characters. So keep track of
+  ; how many characters where to write into the buffer in the first place.
+  mov dh, dl
+
+.loop:
+  ; Read key press
+  mov ah, 0x00
+  int 0x16
+
+  cmp ah, KEY_BACKSPACE
+  je .backspace
+
+  cmp ah, KEY_ENTER
+  je .end
+
+  cmp dl, 1
+  je .loop
+
+  ; Write the character from AL into the memory pointed
+  ; to by DI (stosb). But also print said character to the screen
+  ; so the user knows what they're typing.
+  stosb
+  call printc
+
+  sub dl, 1
+  jmp .loop
+
+.backspace:
+  ; If the characters left to read is still the same
+  ; as the max amount of characters allowed then backspace
+  ; should not do anything.
+  cmp dh, dl
+  je .loop
+
+  ; Otherwise go back one character, replace it with a space (empty)
+  ; and then go back a character again (print a space will have moved us forwards).
+  ; Afterwards also decrease the pointer in DI.
+  ; Then we're ready to read new input again.
+  mov al, `\b`
+  call printc
+  mov al, ' '
+  call printc
+  mov al, `\b`
+  call printc
+  add dl, 1
+  sub di, 1
+  jmp .loop
+
+.end:
+  mov al, 0
+  stosb
   ret
