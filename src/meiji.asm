@@ -59,6 +59,8 @@ READ_SND_STAGE_ERROR: db "Failed to read the second stage from the floppy drive.
 times 510-($-$$) db 0x00
 dw 0xAA55
 
+[org 0x]
+
 %include "io.asm"
 
 main:
