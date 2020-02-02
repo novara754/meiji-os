@@ -61,7 +61,7 @@ read_snd_stage_err:
 execute_snd_stage:
   cmp al, 0x01 ; Make sure one sector was really read
   jne read_snd_stage_err
-  call main
+  jmp 0x0000:0x7E00
 
 ; -- Includes --
 %include "print.asm"
@@ -77,8 +77,6 @@ READ_SND_STAGE_ERROR: db "Failed to read the second stage from the floppy drive.
 ; with 0s.
 times 510-($-$$) db 0x00
 dw 0xAA55
-
-%include "io.asm"
 
 main:
   call clear_screen
@@ -101,6 +99,9 @@ main:
   call println
 
   jmp .input_loop
+
+; -- Includes --
+%include "io.asm"
 
 ; -- Strings --
 WELCOME_MSG: db "Welcome to the Meiji operating system.", 0
