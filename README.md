@@ -2,7 +2,7 @@
 
 A minimal 16-bit operating system written in pure x86 assembly.
 
-![screenshot](./screenshot.png)
+![screenshare](./showcase.gif)
 
 ## Features
 

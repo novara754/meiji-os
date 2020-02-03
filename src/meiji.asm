@@ -84,7 +84,7 @@ main:
   mov si, WELCOME_MSG
   call println
 
-.input_loop:
+input_loop:
   mov si, PROMPT
   call print
 
@@ -96,15 +96,42 @@ main:
   call println
 
   mov si, INPUT_BUFFER
+  mov di, HELP_COMMAND_NAME
+  call strcmp
+  cmp ax, 0
+  je help_command
+
+  mov si, INPUT_BUFFER
+  mov di, CLS_COMMAND_NAME
+  call strcmp
+  cmp ax, 0
+  je cls_command
+
+  mov si, UNKNOWN_COMMAND_MSG
   call println
 
-  jmp .input_loop
+  jmp input_loop
+
+help_command:
+  mov si, HELP_COMMAND_MSG
+  call println
+  jmp input_loop
+
+cls_command:
+  call clear_screen
+  jmp input_loop
 
 ; -- Includes --
 %include "io.asm"
+%include "string.asm"
 
 ; -- Strings --
 WELCOME_MSG: db "Welcome to the Meiji operating system.", 0
 PROMPT: db "> ", 0
 INPUT_BUFFER: times INPUT_BUFFER_LEN db 0x00
 EMPTY: db 0
+
+HELP_COMMAND_NAME: db "help", 0
+HELP_COMMAND_MSG: db "Available commands are as follows: help, cls.", 0
+CLS_COMMAND_NAME: db "cls", 0
+UNKNOWN_COMMAND_MSG: db "No such command.", 0
